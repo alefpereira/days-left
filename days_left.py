@@ -6,6 +6,9 @@ import os
 import argparse
 from datetime import datetime, date, timedelta
 
+import json
+from json.decoder import JSONDecodeError
+
 DATA_DIR_NAME = 'days-left'
 DATA_FILE_NAME = 'dates.json'
 
@@ -30,6 +33,13 @@ DATE_FORMATS = [DATE_FORMAT1, DATE_FORMAT2, DATE_FORMAT3, DATE_FORMAT4]
 def check_dir():
     '''Documentation for check_dir function'''
     os.makedirs(CONFIG_DIR, exist_ok=True)
+    with open(CONFIG_FILE, 'w+') as data_file:
+        try:
+            date_list = json.load(data_file)
+        except JSONDecodeError as err:
+            date_list = []
+            json.dump(date_list, data_file)
+    return date_list
 
 def parse_date(date_str, date_formats_list):
     '''Documentation for parse_date function'''
@@ -60,6 +70,8 @@ def main():
     parser.add_argument('a', type=int, nargs='*', default=1, help='A int var a')
     args = parser.parse_args()
     print('Hello Underworld!\nargs: %s' % (args))
+
+    # Check dir and create file
 
     today = date.today()
     days_list = [
