@@ -56,7 +56,7 @@ def add_date(date_str, date_list):
     '''Documentation for add_date function'''
     day = parse_date(date_str, DATE_FORMATS)
     day = str(day)
-    date_list.append(day)
+    date_list.append(day) if day not in date_list else date_list
     with open(CONFIG_FILE, 'w') as data_file:
         json.dump(date_list, data_file)
     return date_list
