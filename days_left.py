@@ -59,6 +59,15 @@ def add_date(date_str, date_list):
         json.dump(date_list, data_file)
     return date_list
 
+def remove_date(date_str, date_list):
+    '''Documentation for remove_date function'''
+    day = parse_date(date_str, DATE_FORMATS)
+    day = str(day)
+    if day in date_list: date_list.remove(day)
+    with open(CONFIG_FILE, 'w') as data_file:
+        json.dump(date_list, data_file)
+    return date_list
+
 def parse_date(date_str, date_formats_list):
     '''Documentation for parse_date function'''
     for date_format in date_formats_list:
@@ -70,59 +79,69 @@ def parse_date(date_str, date_formats_list):
 
 def print_list(today, days_list):
     '''Documentation for print_list function'''
-    for day in days_list:
-        day = parse_date(day, DEFAULT_FORMAT)
-        date_diff = (day - today).days
-        if date_diff!=1:
-            print(f'Faltam {date_diff} dias para {day}')
-        else:
-            print(f'Falta {date_diff} dia para {day} (Amanhã)')
+    if days_list:
+       
+        for day in days_list:
+            day = parse_date(day, DEFAULT_FORMAT)
+            date_diff = (day - today).days
+            if date_diff!=1:
+                print(f'Faltam {date_diff} dias para {day}')
+            else:
+                print(f'Falta {date_diff} dia para {day} (Amanhã)')
+    else:
+        print('There is no date registered.')
+        print(' Use "days-left add DDMMYYYY" to store a date')
+
+def flist(args):
+    today = date.today()
+    date_list = check_dir()
+    print_list(today, date_list)
+
+def fadd(args):
+    date_str = args.date
+    date_list = check_dir()
+    add_date(date_str, date_list)
+    # today = date.today()
+    # print_list(today, date_list)
+
+def fremove(args):
+    date_str = args.date
+    date_list = check_dir()
+    remove_date(date_str, date_list)
+    # today = date.today()
+    # print_list(today, date_list)
+
 
 def main():
     '''Main description'''
+
+    # MainParser
     parser = argparse.ArgumentParser(
-        description='Program description',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description='Show days left of dates from today',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    #add_argument(name or flags...[, action][, nargs][, const][, default][, type][, choices][, required][, help][, metavar][, dest])
-    parser.add_argument('a', type=int, nargs='*', default=1, help='A int var a')
+    parser.set_defaults(func=flist)
+    date_help = '''Date. Format accepted DDMMYYYY, DD/MM/YYYY
+And others DD.MM.YYYY
+DD-MM-YYYY
+'''
+
+    # SubParser
+    subparsers = parser.add_subparsers(help='sub-command help')
+
+    parser_list = subparsers.add_parser('list', description='List days left', help='list days left (default)')
+    parser_list.set_defaults(func=flist)
+
+    parser_add = subparsers.add_parser('add', description='Add DATE', help='add date')
+    parser_add.add_argument('date', metavar='DATE', type=str, help=date_help)
+    parser_add.set_defaults(func=fadd)
+
+    parser_rem = subparsers.add_parser('remove', description='Remove DATE', help='Remove date')
+    parser_rem.add_argument('date', metavar='DATE', type=str, help=date_help)
+    parser_rem.set_defaults(func=fremove)
+
     args = parser.parse_args()
-    print('Hello Underworld!\nargs: %s' % (args))
-
-    # Check dir and create file
-
-    today = date.today()
-    days_list = [
-        '21/10/2018',
-        '22/10/2018',
-        '23/10/2018',
-        '05/11/2018',
-        '12/11/2018',
-        '14/11/2018',
-        '26/11/2018',
-        '10/12/2018',
-        '6/07/2019',
-        '25/05/2019',
-    ]
-
-    date_list = check_dir()
-
-    for date_str in days_list:
-        date_list = add_date(date_str, date_list)
-
-    print_list(today, date_list)
-
-    # while(True):
-    #     print('Insira a data')
-    #     print('({}, {}, {} ou {}): '.format(DATE_HELP1, DATE_HELP2, DATE_HELP3, DATE_HELP4), end = '')
-    #     date_input = input()
-    #     date_output = parse_date(date_input, DATE_FORMATS)
-    #     if date_output:
-    #         print('Confirmação: {}'.format(date_output))
-    #     else:
-    #         print('Erro ao ler {}'.format(date_input))
-
-
+    args.func(args)
 
 if __name__ == '__main__':
     sys.exit(main())
