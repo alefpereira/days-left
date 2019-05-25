@@ -41,6 +41,14 @@ def check_dir():
             json.dump(date_list, data_file)
     return date_list
 
+def add_date(date_str, date_list):
+    '''Documentation for add_date function'''
+    day = parse_date(date_str, DATE_FORMATS)
+    day = str(day)
+    date_list.append(day)
+    with open(CONFIG_FILE, 'w') as data_file:
+        json.dump(date_list, data_file)
+
 def parse_date(date_str, date_formats_list):
     '''Documentation for parse_date function'''
     for date_format in date_formats_list:
