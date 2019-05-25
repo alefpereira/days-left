@@ -29,16 +29,27 @@ DATE_FORMAT3 = '%d%m%y'
 DATE_FORMAT4 = '%d/%m/%y'
 
 DATE_FORMATS = [DATE_FORMAT1, DATE_FORMAT2, DATE_FORMAT3, DATE_FORMAT4]
+DEFAULT_FORMAT = ['%Y-%m-%d']
 
 def check_dir():
     '''Documentation for check_dir function'''
+
+    # Create config directory if it doesn't exists
     os.makedirs(CONFIG_DIR, exist_ok=True)
-    with open(CONFIG_FILE, 'w+') as data_file:
-        try:
-            date_list = json.load(data_file)
-        except JSONDecodeError as err:
+
+    # Initialize/Load JSON Data File
+    ## Create if inexistent or empty
+    if not os.path.exists(CONFIG_FILE) or os.stat(CONFIG_FILE).st_size == 0:
+        with open(CONFIG_FILE, 'w') as data_file:
             date_list = []
             json.dump(date_list, data_file)
+        print('Data file initialized!')
+
+    ## Otherwise tries to load JSON file
+    #TODO implement except handler in case of corrupted data
+    else:
+        with open(CONFIG_FILE, 'r') as data_file:
+            date_list = json.load(data_file)
     return date_list
 
 def add_date(date_str, date_list):
@@ -48,6 +59,7 @@ def add_date(date_str, date_list):
     date_list.append(day)
     with open(CONFIG_FILE, 'w') as data_file:
         json.dump(date_list, data_file)
+    return date_list
 
 def parse_date(date_str, date_formats_list):
     '''Documentation for parse_date function'''
@@ -61,7 +73,7 @@ def parse_date(date_str, date_formats_list):
 def print_list(today, days_list):
     '''Documentation for print_list function'''
     for day in days_list:
-        day = parse_date(day, DATE_FORMATS)
+        day = parse_date(day, DEFAULT_FORMAT)
         date_diff = (day - today).days
         if date_diff!=1:
             print(f'Faltam {date_diff} dias para {day}')
@@ -94,7 +106,13 @@ def main():
         '6/07/2019',
         '25/05/2019',
     ]
-    print_list(today, days_list)
+
+    date_list = check_dir()
+    
+    for date_str in days_list:
+        date_list = add_date(date_str, date_list)
+
+    print_list(today, date_list)
 
     # while(True):
     #     print('Insira a data')
