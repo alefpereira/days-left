@@ -16,8 +16,6 @@ CONFIG_DIR = os.getenv('HOME')
 CONFIG_DIR = os.path.join(CONFIG_DIR, '.config', DATA_DIR_NAME)
 CONFIG_FILE = os.path.join(CONFIG_DIR, DATA_FILE_NAME)
 
-print('CONFIG_DIR:', CONFIG_DIR)
-
 DATE_HELP1 = 'DDMMAAAA'
 DATE_HELP2 = 'DD/MM/AAAA'
 DATE_HELP3 = 'DDMMAA'
@@ -108,7 +106,7 @@ def main():
     ]
 
     date_list = check_dir()
-    
+
     for date_str in days_list:
         date_list = add_date(date_str, date_list)
 
